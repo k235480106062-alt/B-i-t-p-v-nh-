@@ -1,0 +1,172 @@
+BÁO CÁO: THUẬT TOÁN MÃ HÓA DES, AES, RSA
+Sinh viên: k235480106062-alt
+Môn: An toàn và bảo mật thông tin
+
+================================================================
+1. THUẬT TOÁN DES (Data Encryption Standard)
+================================================================
+
+Mô tả:
+- DES là thuật toán mã hóa đối xứng khối (block cipher)
+- Độ dài khóa: 56 bits (thực tế 64 bits, 8 bits parity)
+- Kích thước khối: 64 bits
+- Số vòng lặp: 16 vòng Feistel
+
+Quy trình mã hóa:
+1. Initial Permutation (IP): Hoán vị 64 bits đầu vào
+2. 16 vòng Feistel:
+   - Chia khối thành 2 nửa: L (left) và R (right)
+   - Mỗi vòng: L_new = R, R_new = L ⊕ f(R, K_i)
+   - f là hàm Feistel với S-box
+3. Final Permutation (IP^-1): Hoán vị ngược
+
+Quy trình giải mã:
+- Giống mã hóa nhưng dùng khóa theo thứ tự ngược lại (K_16 đến K_1)
+
+Nhược điểm:
+- Khóa 56 bits quá ngắn → dễ bị brute-force
+- Đã bị phá năm 1999 (EFF DES cracker)
+
+================================================================
+2. THUẬT TOÁN AES (Advanced Encryption Standard)
+================================================================
+
+Mô tả:
+- AES là thuật toán mã hóa đối xứng khối, thay thế DES
+- Độ dài khóa: 128/192/256 bits
+- Kích thước khối: 128 bits
+- Số vòng lặp: 10/12/14 vòng (tùy key size)
+
+Quy trình mã hóa (AES-128, 10 vòng):
+1. AddRoundKey: XOR plaintext với khóa vòng 0
+2. 9 vòng chính:
+   - SubBytes: Thay thế mỗi byte bằng S-box
+   - ShiftRows: Dịch chuyển các hàng
+   - MixColumns: Trộn các cột
+   - AddRoundKey: XOR với khóa vòng
+3. Vòng cuối cùng: SubBytes + ShiftRows + AddRoundKey (không MixColumns)
+
+Quy trình giải mã:
+- Ngược lại với mã hóa: InvShiftRows, InvSubBytes, AddRoundKey, InvMixColumns
+
+Ưu điểm:
+- Tốc độ nhanh (phần cứng và phần mềm)
+- An toàn với khóa 128+ bits
+- Được NIST chấp nhận làm tiêu chuẩn
+
+================================================================
+3. THUẬT TOÁN RSA (Rivest-Shamir-Adleman)
+================================================================
+
+Nguyên lý sinh cặp khóa:
+
+Bước 1: Chọn 2 số nguyên tố lớn p, q
+- p và q phải lớn (thường 1024+ bits mỗi số)
+- Tính n = p × q (modulus)
+
+Bước 2: Tính φ(n)
+- φ(n) = (p-1) × (q-1)
+
+Bước 3: Chọn số e (public exponent)
+- 1 < e < φ(n)
+- gcd(e, φ(n)) = 1 (e và φ(n) nguyên tố cùng nhau)
+- Thường chọn e = 65537
+
+Bước 4: Tính d (private exponent)
+- d × e ≡ 1 (mod φ(n))
+- d là nghịch đảo modular của e
+
+Khóa công khai: (n, e)
+Khóa bí mật: (n, d)
+
+Mã hóa: Ciphertext C = M^e mod n
+Giải mã: Plaintext M = C^d mod n
+
+================================================================
+4. CÁC MÔ HÌNH ÁP DỤNG RSA
+================================================================
+
+4.1. Xác thực người gửi (Chữ ký số):
+Người gửi:
+1. Tính hash của thông điệp: h = H(M)
+2. Ký bằng khóa bí mật: S = h^d mod n
+3. Gửi (M, S)
+
+Người nhận:
+1. Tính hash của M: h' = H(M)
+2. Giải mã chữ ký: h = S^e mod n
+3. So sánh h' == h → Xác thực người gửi
+
+4.2. Xác thực người nhận (Mã hóa):
+Người gửi:
+1. Lấy khóa công khai của người nhận: (n, e)
+2. Mã hóa: C = M^e mod n
+3. Gửi C
+
+Người nhận:
+1. Giải mã bằng khóa bí mật: M = C^d mod n
+
+4.3. Xác thực cả 2 (Ký + Mã hóa):
+Người gửi A → Người nhận B:
+1. A ký thông điệp bằng khóa bí mật của A: S = H(M)^d_A mod n_A
+2. A mã hóa (M, S) bằng khóa công khai của B: C = (M,S)^e_B mod n_B
+3. Gửi C
+
+Người nhận B:
+1. B giải mã bằng khóa bí mật của B: (M, S) = C^d_B mod n_B
+2. B xác thực chữ ký bằng khóa công khai của A: H(M) == S^e_A mod n_A
+
+================================================================
+5. SO SÁNH RSA VÀ AES
+================================================================
+
+Tiêu chí          | AES              | RSA
+------------------|------------------|------------------
+Loại              | Đối xứng         | Bất đối xứng
+Key size          | 128/192/256 bits | 2048/4096 bits
+Tốc độ mã hóa     | Rất nhanh        | Chậm hơn ~1000 lần
+Tốc độ giải mã    | Rất nhanh        | Chậm hơn ~1000 lần
+Phù hợp           | Dữ liệu lớn      | Key exchange, chữ ký
+An toàn           | 128+ bits        | Cần 2048+ bits
+
+Benchmark (minh họa):
+Mã hóa 1MB dữ liệu:
+- AES-256: ~0.01 giây
+- RSA-2048: ~10 giây
+
+================================================================
+6. KẾT HỢP RSA VÀ AES (HYBRID CRYPTOSYSTEM)
+================================================================
+
+Tại sao cần kết hợp?
+- AES nhanh nhưng khó phân phối khóa an toàn
+- RSA an toàn cho phân phối khóa nhưng chậm
+
+Quy trình kết hợp:
+1. Người gửi tạo khóa AES ngẫu nhiên (session key)
+2. Mã hóa dữ liệu bằng AES với session key
+3. Mã hóa session key bằng RSA với khóa công khai của người nhận
+4. Gửi (dữ liệu đã mã hóa AES + session key đã mã hóa RSA)
+
+Người nhận:
+1. Giải mã session key bằng RSA với khóa bí mật
+2. Giải mã dữ liệu bằng AES với session key
+
+Ưu điểm:
+- Tốc độ của AES cho dữ liệu lớn
+- Bảo mật của RSA cho phân phối khóa
+- Được sử dụng trong TLS/SSL, PGP, S/MIME
+
+================================================================
+KẾT LUẬN
+================================================================
+
+- DES: Đã lỗi thời, không nên dùng
+- AES: Tiêu chuẩn hiện tại cho mã hóa đối xứng, nhanh và an toàn
+- RSA: Tiêu chuẩn cho mã hóa bất đối xứng, chữ ký số
+- Kết hợp RSA + AES: Giải pháp tối ưu cho hệ thống thực tế
+
+Tài liệu tham khảo:
+- NIST FIPS 197 (AES)
+- RFC 8017 (RSA)
+- Stallings, Cryptography and Network Security
