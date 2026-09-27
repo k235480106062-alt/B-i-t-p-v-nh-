@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bai tap 2 - Goi API Node-RED</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #333; text-align: center; }
+        button { display: block; margin: 20px auto; padding: 15px 30px; font-size: 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #4CAF50; color: white; }
+        #result { margin-top: 20px; padding: 15px; background: white; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Bai tap 2: Goi API tu Node-RED</h1>
+    <p style="text-align:center;">Sinh vien: admin123456 - MSSV: k235480106062-alt</p>
+    <button onclick="loadAPI()">Tai du lieu tu API</button>
+    <div id="result"></div>
+    <table id="dataTable" style="display:none;">
+        <thead><tr><th>STT</th><th>Ten</th><th>Tien</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+    </table
+    <script>
+        function loadAPI() {
+            fetch('http://localhost:1880/api/tacke')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('result').innerHTML = '<h3>Ket qua: ' + data.msg + '</h3><p>So SV: ' + data.dssv.length + '</p>';
+                    let tbody = document.getElementById('tableBody');
+fetch('/api/tacke')                    tbody.innerHTML = '';
+                    data.dssv.forEach(function(sv, i) {
+                        let row = tbody.insertRow();
+                        row.insertCell(0).innerHTML = i + 1;
+                        row.insertCell(1).innerHTML = sv.name;
+                        row.insertCell(2).innerHTML = sv.money;
+                    });
+                    document.getElementById('dataTable').style.display = 'table';
+                })
+                .catch(err => {
+                    document.getElementById('result').innerHTML = '<p style="color:red;">Loi: ' + err + '</p>';
+                });
+        }
+    </script>
+</body>
+</html>
+

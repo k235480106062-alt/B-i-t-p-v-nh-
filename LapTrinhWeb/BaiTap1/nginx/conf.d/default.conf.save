@@ -1,0 +1,28 @@
+# Thêm CORS headers
+    add_header 'Access-Control-Allow-Origin' '*';
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+    add_header 'Access-Control-Allow-Headers' 'Content-Type';server {
+    listen 80;
+    server_name domain1.example.com;
+
+    location / {
+        root /usr/share/nginx/html/site1;
+        index index.html;
+    }
+
+    location /api/ { 
+        proxy_pass http://nodered:1880/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+server {
+    listen 80;
+    server_name domain2.example.com;
+
+    location / {
+        root /usr/share/nginx/html/site2;
+        index index.html;
+    }
+}
