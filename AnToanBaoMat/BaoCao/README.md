@@ -1,0 +1,1 @@
+# Bao cao ly thuyet 
